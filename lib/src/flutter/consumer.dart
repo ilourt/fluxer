@@ -1,17 +1,14 @@
-// ignore: slash_for_doc_comments
-/**
- * This file is part of fluxer.
- *
- * (c) Irwin Lourtet <dev@ilourt.com>
- *
- * For the full copyright and license information, please view the LICENSE file
- * distributed with this source code
- * or visit https://github.com/ilourt/fluxer
- */
+// This file is part of fluxer.
+//
+// (c) Irwin Lourtet <dev@ilourt.com>
+//
+// For the full copyright and license information, please view the LICENSE file
+// distributed with this source code
+// or visit https://github.com/ilourt/fluxer
 
 part of '../flutter.dart';
 
-class Consumer<T extends Store<U>, U> extends StatefulWidget {
+class Consumer<T extends core.Store<U>, U> extends StatefulWidget {
   const Consumer({
     Key? key,
     required this.ref,
@@ -20,14 +17,14 @@ class Consumer<T extends Store<U>, U> extends StatefulWidget {
   }) : super(key: key);
 
   final dynamic ref;
-  final bool Function(U, U)? buildWhen;
-  final Widget Function(BuildContext context, U state) build;
+  final BuildWhen<U>? buildWhen;
+  final BuildWithState<U> build;
 
   @override
   _ConsumerState<T, U> createState() => _ConsumerState<T, U>();
 }
 
-class _ConsumerState<T extends Store<U>, U> extends State<Consumer<T, U>> {
+class _ConsumerState<T extends core.Store<U>, U> extends State<Consumer<T, U>> {
   late final T _store;
 
   @override
@@ -53,6 +50,6 @@ class _ConsumerState<T extends Store<U>, U> extends State<Consumer<T, U>> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.build(context, _store.state as U);
+    return widget.build(context, _store.state);
   }
 }

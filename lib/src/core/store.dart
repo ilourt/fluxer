@@ -1,19 +1,16 @@
-// ignore: slash_for_doc_comments
-/**
- * This file is part of fluxer.
- *
- * (c) Irwin Lourtet <dev@ilourt.com>
- *
- * For the full copyright and license information, please view the LICENSE file
- * distributed with this source code
- * or visit https://github.com/ilourt/fluxer
- */
+// This file is part of fluxer.
+//
+// (c) Irwin Lourtet <dev@ilourt.com>
+//
+// For the full copyright and license information, please view the LICENSE file
+// distributed with this source code
+// or visit https://github.com/ilourt/fluxer
 
 part of '../core.dart';
 
 /// Manage the state and the actions
 abstract class Store<State> {
-    Store(this._state);
+  Store(this._state);
 
   //----------------------------------------------------------------------------
   // State
@@ -45,8 +42,9 @@ abstract class Store<State> {
   final Set<Listener<State>> _listeners = {};
 
   /// Add listener which will be notified when state changed
-  void listen(Listener<State> fn) {
+  Function listen(Listener<State> fn) {
     _listeners.add(fn);
+    return () => unlisten(fn);
   }
 
   /// Remove listener
@@ -84,11 +82,14 @@ abstract class Store<State> {
         _actionController._dispatch();
         return;
       }
-      throw "$runtimeType action can not dispatch more than once per action";
+      throw Exception(
+          "$runtimeType action can not dispatch more than once per action");
     }
 
     notify(State state) {
-      if (hasBeenDispatched) throw "$runtimeType can not notify after dispatch";
+      if (hasBeenDispatched) {
+        throw Exception("$runtimeType can not notify after dispatch");
+      }
       _prevState = _state;
       _state = state;
       _notify();
