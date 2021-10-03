@@ -28,7 +28,7 @@ class Provider extends StatefulWidget {
 class _ProviderState extends State<Provider> {
   @override
   void initState() {
-    fluxer.addRef(widget.create(), widget.ref);
+    fluxer.addRef(widget.ref, widget.create());
     super.initState();
   }
 
@@ -37,7 +37,7 @@ class _ProviderState extends State<Provider> {
     if (oldWidget.ref != widget.ref) {
       if (oldWidget.autodispose) fluxer.removeRef(oldWidget.ref);
 
-      fluxer.addRef(widget.create(), widget.ref);
+      fluxer.addRef(widget.ref, widget.create());
     }
     super.didUpdateWidget(oldWidget);
   }

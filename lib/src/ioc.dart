@@ -17,7 +17,7 @@ void initFluxer() {
 class Fluxer {
   final Map<dynamic, Store> _refs = {};
 
-  stateOfRef(dynamic ref) {
+  S stateOf<S>(dynamic ref) {
     if (!_refs.containsKey(ref)) {
       throw Exception("There is no store with ref : $ref");
     }
@@ -34,7 +34,7 @@ class Fluxer {
     return store as S;
   }
 
-  addRef(Store store, dynamic ref) {
+  addRef(dynamic ref, Store store) {
     assert(
         !_refs.containsKey(ref), "A store whith the ref '$ref' already exists");
     _refs[ref] = store;

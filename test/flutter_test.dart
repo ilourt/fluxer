@@ -46,7 +46,7 @@ void main() {
   testWidgets('Consumer should rebuild on store update',
       (WidgetTester tester) async {
     var store = MockStore("initial state");
-    fluxer.addRef(store, myRef);
+    fluxer.addRef(myRef, store);
 
     await tester.pumpWidget(Consumer<MockStore, String>(
       ref: myRef,
@@ -74,7 +74,7 @@ void main() {
       (WidgetTester tester) async {
     var store = MockStore("initial state");
     var stateForRebuild = "state for rebuild";
-    fluxer.addRef(store, myRef);
+    fluxer.addRef(myRef, store);
 
     await tester.pumpWidget(Consumer<MockStore, String>(
       ref: myRef,
@@ -115,8 +115,8 @@ void main() {
     var store1 = MockStore("initial state1");
     var store2 = MockStore("initial state2");
     var stateForRebuild = "state for rebuild";
-    fluxer.addRef(store1, ref1);
-    fluxer.addRef(store2, ref2);
+    fluxer.addRef(ref1, store1);
+    fluxer.addRef(ref2, store2);
 
     await tester.pumpWidget(MultiConsumer(
       storeConsumers: [
@@ -126,8 +126,8 @@ void main() {
             buildWhen: (prevState, state) => state == stateForRebuild),
       ],
       build: (context) {
-        var state1 = fluxer.stateOfRef(ref1);
-        var state2 = fluxer.stateOfRef(ref2);
+        var state1 = fluxer.stateOf(ref1);
+        var state2 = fluxer.stateOf(ref2);
 
         return Row(textDirection: TextDirection.ltr, children: [
           Text(
