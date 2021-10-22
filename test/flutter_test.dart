@@ -60,9 +60,8 @@ void main() {
     expect(textFind, findsOneWidget);
 
     var updatedState = "updated state";
-    await store.addAction((dispatch, notify) {
-      notify(updatedState);
-      dispatch();
+    await store.addAction((emit) {
+      emit(state: updatedState, dispatch: true);
     });
 
     await tester.pump();
@@ -89,18 +88,16 @@ void main() {
     expect(textFind, findsOneWidget);
 
     var updatedState = "updated state";
-    await store.addAction((dispatch, notify) {
-      notify(updatedState);
-      dispatch();
+    await store.addAction((emit) {
+      emit(state: updatedState, dispatch: true);
     });
 
     await tester.pump();
     textFind = find.text(updatedState);
     expect(textFind, findsNothing);
 
-    await store.addAction((dispatch, notify) {
-      notify(stateForRebuild);
-      dispatch();
+    await store.addAction((emit) {
+      emit(state: stateForRebuild, dispatch: true);
     });
 
     await tester.pump();
@@ -148,9 +145,8 @@ void main() {
     expect(text2Find, findsOneWidget);
 
     var store1NewState = "new state";
-    await store1.addAction((dispatch, notify) {
-      notify(store1NewState);
-      dispatch();
+    await store1.addAction((emit) {
+      emit(state: store1NewState, dispatch: true);
     });
 
     await tester.pump();
@@ -159,9 +155,8 @@ void main() {
     expect(text1Find, findsOneWidget);
     expect(text2Find, findsOneWidget);
 
-    await store2.addAction((dispatch, notify) {
-      notify("state do not provoke a rebuild");
-      dispatch();
+    await store2.addAction((emit) {
+      emit(state: "state do not provoke a rebuild", dispatch: true);
     });
 
     await tester.pump();
@@ -170,9 +165,8 @@ void main() {
     expect(text1Find, findsOneWidget);
     expect(text2Find, findsNothing);
 
-    await store2.addAction((dispatch, notify) {
-      notify(stateForRebuild);
-      dispatch();
+    await store2.addAction((emit) {
+      emit(state: stateForRebuild, dispatch: true);
     });
 
     await tester.pump();

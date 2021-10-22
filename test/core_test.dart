@@ -16,33 +16,31 @@ class MockStore extends Store<String> {
   MockStore(String state) : super(state);
 
   Future<String> updateString(String newState) {
-    return addAction((dispatch, notify) {
-      notify(newState);
-      dispatch();
+    return addAction((emit) {
+      emit(state: newState, dispatch: true);
       return newState;
     });
   }
 
   Future<String> updateStringDelayed(String newState, Duration d) {
-    return addAction((dispatch, notify) async {
+    return addAction((emit) async {
       await Future.delayed(d);
-      notify(newState);
-      dispatch();
+      emit(state: newState, dispatch: true);
       return newState;
     });
   }
 
   notifyAfterDispatch() {
-    return addAction((dispatch, notify) {
-      dispatch();
-      notify("new state");
+    return addAction((emit) {
+      emit(dispatch: true);
+      emit(state: "new state");
     });
   }
 
   dispatchTwice() {
-    return addAction((dispatch, notify) {
-      dispatch();
-      dispatch();
+    return addAction((emit) {
+      emit(dispatch: true);
+      emit(dispatch: true);
     });
   }
 }

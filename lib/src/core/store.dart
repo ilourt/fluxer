@@ -67,7 +67,7 @@ abstract class Store<State> {
   final ActionController _actionController = ActionController();
 
   /// Add an action to the queue and execute it when it is its turn.
-  Future<T> addAction<T>(DispatchCb cb) async {
+  Future<T> addAction<T>(EmitCb cb) async {
     // Add an action to the queue and wait its turn to be executed.
     Channel actionStart = Channel();
     _actionController._addToQueue(actionStart);
@@ -76,28 +76,35 @@ abstract class Store<State> {
 
     // Create the dispatch function
     bool hasBeenDispatched = false;
-    dispatch() {
-      if (!hasBeenDispatched) {
+
+    emit({bool dispatch = true, State? state}) {
+      if (hasBeenDispatched) {
+        if (dispatch) {
+          throw Exception(
+              "$runtimeType action can not dispatch more than once per action");
+        }
+
+        if (state != null) {
+          throw Exception("$runtimeType can not update state after dispatch");
+        }
+      }
+
+      if (state != null) {
+        _prevState = _state;
+        _state = state;
+        _notify();
+      }
+
+      if (dispatch) {
         hasBeenDispatched = true;
         _actionController._dispatch();
         return;
       }
-      throw Exception(
-          "$runtimeType action can not dispatch more than once per action");
-    }
-
-    notify(State state) {
-      if (hasBeenDispatched) {
-        throw Exception("$runtimeType can not notify after dispatch");
-      }
-      _prevState = _state;
-      _state = state;
-      _notify();
     }
 
     try {
       // Execute the callback and return its result
-      return cb(dispatch, notify);
+      return cb(emit);
     } catch (error) {
       // Call the dispatch method if it has not been called
       if (_actionController._waitDispatch) _actionController._dispatch();

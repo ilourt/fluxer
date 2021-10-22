@@ -51,4 +51,4 @@ class ActionController {
 }
 
 /// Signature of the dispatch callback
-typedef DispatchCb = Function(Function dispatch, Function notify);
+typedef EmitCb = Function(Function emit);
