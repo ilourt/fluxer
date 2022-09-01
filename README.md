@@ -1,39 +1,117 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
-
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
-
+A store inpired by the flux pattern. Its aim is to be easy to use.
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+It can be used as a singleton globally available or scoped to a branch of widgets.
+
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Add fluxer to `pubspec.yaml`
+
+```dart
+dependencies:
+  # State
+  fluxer:
+    git:
+      url: https://github.com/ilourt/fluxer
+      ref: 0.4.0
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+For more detailled example check in the `examples` folder.
+
+### Initialize fluxer
 
 ```dart
-const like = 'sample';
+import 'package:fluxer/fluxer.dart';
+
+void main() async {
+  // Init fluxer
+  initFluxer();
+
+  // add a globally accessible store
+  fluxer.addRef(authRef, AuthStore());
+}
 ```
 
-## Additional information
+### Create a store
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+``` dart
+import 'package:fluxer/fluxer.dart';
+
+class CounterStore extends Store<CounterState> {
+  CounterStore() : super(CounterState(0));
+
+  Future<int> increment() {
+    // Add the callback into the action queue. It will be executed after all
+    // previous action in the queue has been executed.
+    //
+    // `emit` is a callback which can take 2 named arguments optional:
+    // - `state` which is the new instance of the updated state
+    // - `dispatch` (bool) if it is true (by default) it tell that the action is
+    //    finished and the state will no more update the state. If false it
+    //    will allow to emit other state in the same action and will not remove
+    //    current action from the queue.
+    //
+    // Add the end of the action if no emit has been fired, then the action will
+    // automatically be removed from the action queue.
+    return addAction((emit) {
+      emit(state: CounterState(state.counter + 1));
+
+      // The state is now the new state updated during the call to emit
+      return state.counter;
+    });
+  }
+}
+
+class CounterState {
+  CounterState(this.counter);
+
+  final int counter;
+}
+```
+
+### Consume a store inside a widget
+
+```dart
+
+Consumer<MyStore, MyState>(
+  ref: "myStoreRef",
+  build: (context, state) {
+    // In state you have access to the state of the store
+    // If in the state you have a string property myText you can:
+    return Text(state.myText);
+  }
+)
+
+```
+
+### Provide a store locally
+
+You can create a store only accessible in a specified widget tree. This store
+will be destroyed when the `Provider` is no more in the tree.
+
+```dart
+Provider(
+  create: () => CounterStore(),
+  ref: "counterRefLocal",
+  child: Consumer<CounterStore, CounterState>(
+    ref: "counterRefLocal",
+    build: (context, state) => Center(
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(state.counter.toString()),
+            ElevatedButton(
+              onPressed: () {
+                fluxer.of<CounterStore>("counterRef").increment();
+              },
+              child: const Text("increment"),
+            )
+          ]),
+    ),
+  ),
+);
+```
